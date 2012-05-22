@@ -37,7 +37,7 @@ class S3 extends \lithium\core\Object {
 	}
 
 	public function write($filename, $data, array $options = array()) {
-		$s3 = new \AmazonS3($this->_config);;
+		$s3 = new \AmazonS3($this->_config);
 		$bucket = $this->_config['bucket'];
 		$region = $this->_config['region'];
 
