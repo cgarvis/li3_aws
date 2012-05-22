@@ -31,6 +31,7 @@ class S3 extends \lithium\core\Object {
 			'secret' => 'DRDMBTZ1ku1KUG4zHLbL81k8cJgh92UJQzrK4l1P',
 			'bucket' => 'lithium',
 			'region' => \AmazonS3::REGION_US_E1,
+			'certificate_authority' => true,
 		);
 		parent::__construct($config + $defaults);
 	}
