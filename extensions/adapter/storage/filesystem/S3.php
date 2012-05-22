@@ -27,10 +27,10 @@ class S3 extends \lithium\core\Object {
 	 */
 	public function __construct(array $config = array()) {
 		$defaults = array(
-			'key' => 'AKIAJCQJZKAWSTNVBHUQ',
-			'secret' => 'DRDMBTZ1ku1KUG4zHLbL81k8cJgh92UJQzrK4l1P',
-			'bucket' => 'lithium',
-			'region' => \AmazonS3::REGION_US_E1,
+			'key' => 'your_aws_access_key',
+			'secret' => 'your_aws_secret',
+			'bucket' => 'your_default_bucket',
+			'region' => \AmazonS3::REGION_EU_W1,
 			'certificate_authority' => true,
 		);
 		parent::__construct($config + $defaults);
