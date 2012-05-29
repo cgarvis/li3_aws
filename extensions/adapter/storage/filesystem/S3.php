@@ -36,6 +36,12 @@ class S3 extends \lithium\core\Object {
 		parent::__construct($config + $defaults);
 	}
 
+	/**
+	 * Writes files to Amazon S3 buckets.
+	 * @param string $filename The name of the file to write
+	 * @param array $data The body of the request (This includes the data which should write to file on Amazon S3)
+	 * @param array $options
+	 */
 	public function write($filename, $data, array $options = array()) {
 		$s3 = new \AmazonS3($this->_config);
 		$bucket = $this->_config['bucket'];
@@ -66,7 +72,19 @@ class S3 extends \lithium\core\Object {
 
 	}
 
+	/**
+	 * Deletes a file from Amazon S3 storage
+	 * @param string $filename The name of the file to delete
+	 * 	(The filename should includes the full path in your S3 bucket with subfolders)
+	 * @param array $options
+	 */
 	public function delete($filename, array $options = array()) {
+		$s3 = new \AmazonS3($this->_config);
+		$bucket = $this->_config['bucket'];
+		$region = $this->_config['region'];
 
+		return function($self, $params) use ($s3, $bucket, $region, $filename) {
+			return $s3->delete_object($bucket, $filename);
+		};
 	}
 }
