@@ -52,6 +52,7 @@ class S3 extends \lithium\core\Object {
 				'acl' => \AmazonS3::ACL_PUBLIC,
 				'body' => $params['data']
 			);
+
 			$params['options'] += $defaults;
 			$filename = $params['filename'];
 
@@ -69,7 +70,30 @@ class S3 extends \lithium\core\Object {
 		};
 	}
 
+	/**
+	 * Read files from amazon s3 storage.
+	 * @param string $filename The name of the file to read
+	 * @param array $options
+	 */
 	public function read($filename, array $options = array()) {
+		$s3 = new \AmazonS3($this->_config);
+		$bucket = $this->_config['bucket'];
+		$region = $this->_config['region'];
+
+		return function($self, $params) use ($s3, $bucket, $region) {
+			$defaults = array(
+				'url_only' => false
+			);
+			$params['options'] += $defaults;
+			$filename = $params['filename'];
+
+			if($params['options']['url_only'] === true) {
+				$urlTimeout = (isset($params['options']['url_timeout'])) ? $params['options']['url_timeout'] : 0;
+				return $s3->get_object_url($bucket, $filename, $urlTimeout, $params['options']);
+			}
+
+			return $s3->get_object($bucket, $filename, $params['options']);
+		};
 
 	}
 
@@ -84,7 +108,8 @@ class S3 extends \lithium\core\Object {
 		$bucket = $this->_config['bucket'];
 		$region = $this->_config['region'];
 
-		return function($self, $params) use ($s3, $bucket, $region, $filename) {
+		return function($self, $params) use ($s3, $bucket, $region) {
+			$filename = $params['filename'];
 			return $s3->delete_object($bucket, $filename, $params['options']);
 		};
 	}
