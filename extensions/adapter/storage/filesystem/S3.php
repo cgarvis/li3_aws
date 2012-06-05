@@ -48,7 +48,11 @@ class S3 extends \lithium\core\Object {
 		$region = $this->_config['region'];
 
 		return function($self, $params) use ($s3, $bucket, $region) {
-			$body = $params['data'];
+			$defaults = array(
+				'acl' => \AmazonS3::ACL_PUBLIC,
+				'body' => $params['data']
+			);
+			$params['options'] += $defaults;
 			$filename = $params['filename'];
 
 			if($s3->if_bucket_exists($bucket)) {
@@ -61,10 +65,7 @@ class S3 extends \lithium\core\Object {
 				// @TODO: implement logic when file exists
 			}
 
-			return $s3->create_object($bucket, $filename, array(
-				'acl' => \AmazonS3::ACL_PUBLIC,
-				'body' => $body
-			));
+			return $s3->create_object($bucket, $filename, $params['options']);
 		};
 	}
 
@@ -73,7 +74,7 @@ class S3 extends \lithium\core\Object {
 	}
 
 	/**
-	 * Deletes a file from Amazon S3 storage
+	 * Deletes a file from Amazon S3 storage.
 	 * @param string $filename The name of the file to delete
 	 * 	(The filename should includes the full path in your S3 bucket with subfolders)
 	 * @param array $options
@@ -84,7 +85,35 @@ class S3 extends \lithium\core\Object {
 		$region = $this->_config['region'];
 
 		return function($self, $params) use ($s3, $bucket, $region, $filename) {
-			return $s3->delete_object($bucket, $filename);
+			return $s3->delete_object($bucket, $filename, $params['options']);
+		};
+	}
+
+	/**
+	 * Copy files on amazon.
+	 * The source bucket will get from filesystem configuration,
+	 * the destination bucket have to set in options array, to keep generic copy method in filesystem layer.
+	 * @param string $srcFilename The source filename with fullpath
+	 * @param unknown_type $destFilename The destination filename with fullpath
+	 * @param array $options The options array is required, because here we set the destination bucket.
+	 */
+	public function copy($srcFilename, $destFilename, array $options) {
+		$s3 = new \AmazonS3($this->_config);
+		$srcBucket = $this->_config['bucket'];
+		$region = $this->_config['region'];
+
+		if(!isset($options['destBucket'])) {
+			return false;
+		}
+
+		$source = array('bucket' => $srcBucket, 'filename' => $srcFilename);
+		$dest = array('bucket' => $options['destBucket'], 'filename' => $destFilename);
+
+		return function($self, $params) use ($s3, $source, $dest, $region) {
+			$defaults = array('acl' => \AmazonS3::ACL_PUBLIC);
+			$params['options'] += $defaults;
+
+			return $s3->copy_object($source, $dest, $params['options']);
 		};
 	}
 }
