@@ -22,7 +22,7 @@ class S3 extends \lithium\core\Object {
 	/**
 	 * Class constructor.
 	 *
-	 * @see li3_filesystem\storage\FileSystem::config()
+	 * @see li3_filesystem\extensions\storage\FileSystem::config()
 	 * @param array $config
 	 */
 	public function __construct(array $config = array()) {
