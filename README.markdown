@@ -29,6 +29,12 @@ FileSystem::config(array(
 ?>
 ~~~
 
+## Tests
+
+For tests to pass you will need to enter your own AWS `key` and `secret` to the `$configuration` array
+
+File is located at `li3_aws/tests/cases/extensions/adapter/storage/filesystem/S3Test.php`
+
 ## More to come
 
 This is a fork of [this original project](https://github.com/cgarvis/li3_aws) which is outdated and no longer seems to work with the current version of [lithium]
