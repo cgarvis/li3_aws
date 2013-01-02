@@ -7,6 +7,8 @@ use li3_aws\extensions\adapter\storage\filesystem\S3;
 class S3Test extends \lithium\test\Unit {
     protected $configuration = array(
 		'bucket' => 'li3awstest',
+		'key' => '...',
+		'secret' => '...'
 	);
 
 	public function setUp() {
@@ -27,9 +29,37 @@ class S3Test extends \lithium\test\Unit {
 
 	}
 
-	public function testSimpleRead(){
+	public function testSimpleReadUrl(){
+
 		$filename = 'test_file';
-		print_r($this->s3->read($filename, array('url_only' => true)));
+		$expected = "http://{$this->configuration['bucket']}.s3.amazonaws.com/{$filename}";
+		$this->assertEqual($expected, $this->s3->read($filename, array('url_only' => true)));
+
+	}
+
+	public function testFileExists(){
+
+		$filename = 'test_file';
+		$this->assertTrue($this->s3->exists($filename));
+
+	}
+
+	public function testFileNotExists(){
+
+		$filename = 'test_no_file';
+		$this->assertFalse($this->s3->exists($filename));
+
+	}
+
+	public function testBucketExists(){
+		$this->assertTrue($this->s3->exists());
+	}
+
+	public function testBucketNotExists(){
+		$this->configuration['bucket'] = 'li3awsnobucket';
+		$this->s3 = new S3($this->configuration);
+		$this->assertFalse($this->s3->exists());
+		unset($this->s3);
 	}
 
 }

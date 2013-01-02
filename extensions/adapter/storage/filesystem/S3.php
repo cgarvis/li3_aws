@@ -61,13 +61,13 @@ class S3 extends \lithium\core\Object {
 			$params['options'] += $defaults;
 			$filename = $params['filename'];
 
-			if($s3->if_bucket_exists($bucket)) {
+			if($this->exists()) {
 				// @TODO: implement logic when bucket exists
 			} else {
 				$s3->create_bucket($bucket, $region);
 			}
 
-			if($s3->if_object_exists($bucket, $filename)) {
+			if($this->exists($filename)) {
 				// @TODO: implement logic when file exists
 			}
 
@@ -105,6 +105,37 @@ class S3 extends \lithium\core\Object {
 
 			return $s3->get_object($bucket, $filename, $params['options']);
 		});
+
+	}
+
+	/**
+	 * Check to see if a file or bucket already exists
+	 * @param  mixed $filename either the name of a file or null. If null then checks for bucket
+	 * @param  array  $options 
+	 * @return boolean           true if object/bucket exists, false otherwise
+	 */
+	public function exists($filename = null, array $options = array()){
+
+		$s3 = new \AmazonS3($this->_config);
+		$bucket = $this->_config['bucket'];
+		$region = $this->_config['region'];
+
+		$params = compact('bucket', 'region', 'options', 'filename');
+
+		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+
+			extract($params);
+
+			$bucket = isset($options['bucket']) ? $options['bucket'] : $bucket;
+
+			if(!$filename){
+				return $s3->if_bucket_exists($bucket) ? true : false;
+			} else {
+				return $s3->if_object_exists($bucket, $filename);
+			}
+
+		});
+
 
 	}
 
