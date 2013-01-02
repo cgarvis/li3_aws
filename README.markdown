@@ -33,6 +33,8 @@ FileSystem::config(array(
 
 This is a fork of [this original project](https://github.com/cgarvis/li3_aws) which is outdated and no longer seems to work with the current version of [lithium]
 
+Composer installation coming soon
+
 [fs]: https://github.com/mariuskubilius/li3_filesystem "li3_filesystem"
 
 [li3]: https://github.com/UnionOfRAD/lithium "Lithium PHP"
