@@ -47,7 +47,12 @@ class S3 extends \lithium\core\Object {
 		$bucket = $this->_config['bucket'];
 		$region = $this->_config['region'];
 
-		return function($self, $params) use ($s3, $bucket, $region) {
+		$params = compact('bucket', 'region', 'options', 'data', 'filename');
+
+		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+
+			extract($params);
+
 			$defaults = array(
 				'acl' => \AmazonS3::ACL_PUBLIC,
 				'body' => $params['data']
@@ -67,7 +72,7 @@ class S3 extends \lithium\core\Object {
 			}
 
 			return $s3->create_object($bucket, $filename, $params['options']);
-		};
+		});
 	}
 
 	/**
@@ -80,10 +85,16 @@ class S3 extends \lithium\core\Object {
 		$bucket = $this->_config['bucket'];
 		$region = $this->_config['region'];
 
-		return function($self, $params) use ($s3, $bucket, $region) {
+		$params = compact('bucket', 'region', 'options', 'filename');
+
+		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+
+			extract($params);
+
 			$defaults = array(
-				'url_only' => false
+				'url_only' => true
 			);
+
 			$params['options'] += $defaults;
 			$filename = $params['filename'];
 
@@ -93,7 +104,7 @@ class S3 extends \lithium\core\Object {
 			}
 
 			return $s3->get_object($bucket, $filename, $params['options']);
-		};
+		});
 
 	}
 
