@@ -44,7 +44,7 @@ class S3 extends \lithium\core\Object {
 	 */
 	public function write($filename, $data, array $options = array()) {
 		$s3 = new \AmazonS3($this->_config);
-		$bucket = $this->_config['bucket'];
+		$bucket = isset($options['bucket']) ? $options['bucket'] : $this->_config['bucket'];
 		$region = $this->_config['region'];
 
 		$params = compact('bucket', 'region', 'options', 'data', 'filename');
@@ -82,7 +82,7 @@ class S3 extends \lithium\core\Object {
 	 */
 	public function read($filename, array $options = array()) {
 		$s3 = new \AmazonS3($this->_config);
-		$bucket = $this->_config['bucket'];
+		$bucket = isset($options['bucket']) ? $options['bucket'] : $this->_config['bucket'];
 		$region = $this->_config['region'];
 
 		$params = compact('bucket', 'region', 'options', 'filename');
@@ -117,7 +117,7 @@ class S3 extends \lithium\core\Object {
 	public function exists($filename = null, array $options = array()){
 
 		$s3 = new \AmazonS3($this->_config);
-		$bucket = $this->_config['bucket'];
+		$bucket = isset($options['bucket']) ? $options['bucket'] : $this->_config['bucket'];
 		$region = $this->_config['region'];
 
 		$params = compact('bucket', 'region', 'options', 'filename');
@@ -126,8 +126,6 @@ class S3 extends \lithium\core\Object {
 
 			extract($params);
 
-			$bucket = isset($options['bucket']) ? $options['bucket'] : $bucket;
-
 			if(!$filename){
 				return $s3->if_bucket_exists($bucket) ? true : false;
 			} else {
@@ -135,7 +133,6 @@ class S3 extends \lithium\core\Object {
 			}
 
 		});
-
 
 	}
 
@@ -147,13 +144,16 @@ class S3 extends \lithium\core\Object {
 	 */
 	public function delete($filename, array $options = array()) {
 		$s3 = new \AmazonS3($this->_config);
-		$bucket = $this->_config['bucket'];
+		$bucket = isset($options['bucket']) ? $options['bucket'] : $this->_config['bucket'];
 		$region = $this->_config['region'];
 
-		return function($self, $params) use ($s3, $bucket, $region) {
+		$params = compact('bucket', 'region', 'options', 'filename');
+
+		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+			extract($params);
 			$filename = $params['filename'];
-			return $s3->delete_object($bucket, $filename, $params['options']);
-		};
+			return $s3->delete_object($bucket, $filename, $options);
+		});
 	}
 
 	/**
@@ -166,7 +166,7 @@ class S3 extends \lithium\core\Object {
 	 */
 	public function copy($srcFilename, $destFilename, array $options) {
 		$s3 = new \AmazonS3($this->_config);
-		$srcBucket = $this->_config['bucket'];
+		$srcBucket = isset($options['bucket']) ? $options['bucket'] : $this->_config['bucket'];
 		$region = $this->_config['region'];
 
 		if(!isset($options['destBucket'])) {
@@ -176,11 +176,17 @@ class S3 extends \lithium\core\Object {
 		$source = array('bucket' => $srcBucket, 'filename' => $srcFilename);
 		$dest = array('bucket' => $options['destBucket'], 'filename' => $destFilename);
 
-		return function($self, $params) use ($s3, $source, $dest, $region) {
+		$params = compact('bucket', 'region', 'options', 'source', 'dest');
+
+		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+
 			$defaults = array('acl' => \AmazonS3::ACL_PUBLIC);
 			$params['options'] += $defaults;
+			
+			extract($params);
 
-			return $s3->copy_object($source, $dest, $params['options']);
-		};
+			return $s3->copy_object($source, $dest, $options);
+
+		});
 	}
 }

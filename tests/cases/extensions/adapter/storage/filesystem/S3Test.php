@@ -5,6 +5,7 @@ namespace li3_aws\tests\cases\extensions\adapter\storage\filesystem;
 use li3_aws\extensions\adapter\storage\filesystem\S3;
 
 class S3Test extends \lithium\test\Unit {
+
     protected $configuration = array(
 		'bucket' => 'li3awstest',
 		'key' => '...',
@@ -60,6 +61,9 @@ class S3Test extends \lithium\test\Unit {
 		$this->s3 = new S3($this->configuration);
 		$this->assertFalse($this->s3->exists());
 		unset($this->s3);
+	}
+
+	public function testFileUpload(){
 	}
 
 }
