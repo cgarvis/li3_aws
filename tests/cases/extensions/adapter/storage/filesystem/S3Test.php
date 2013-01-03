@@ -21,11 +21,14 @@ class S3Test extends \lithium\test\Unit {
 	}
 
 	public function testSimpleWrite() {
+
 		$filename = 'test_file';
 		$data = 'test data';
 
-		$params = compact('filename', 'data');
-		$result = $this->s3->write($filename, $data);
+		$closure = $this->s3->write($filename, $data);
+		$this->assertTrue(is_callable($closure));
+
+		$result = $closure($filename, $data);
 		$this->assertTrue($result);
 
 	}
@@ -33,34 +36,63 @@ class S3Test extends \lithium\test\Unit {
 	public function testSimpleReadUrl(){
 
 		$filename = 'test_file';
+
+		$closure = $this->s3->read($filename, array());
+		$this->assertTrue(is_callable($closure));
+
 		$expected = "http://{$this->configuration['bucket']}.s3.amazonaws.com/{$filename}";
-		$this->assertEqual($expected, $this->s3->read($filename, array('url_only' => true)));
+		$result = $closure($filename, array('url_only' => true));
+
+		$this->assertEqual($expected, $result);
 
 	}
 
 	public function testFileExists(){
 
 		$filename = 'test_file';
-		$this->assertTrue($this->s3->exists($filename));
+		$closure = $this->s3->exists($filename);
+		$this->assertTrue(is_callable($closure));
+
+		$result = $closure($filename, array());
+
+		$this->assertTrue($result);
 
 	}
 
 	public function testFileNotExists(){
 
 		$filename = 'test_no_file';
-		$this->assertFalse($this->s3->exists($filename));
+		$closure = $this->s3->exists($filename);
+		$this->assertTrue(is_callable($closure));
+
+		$result = $closure($filename, array());
+
+		$this->assertFalse($result);
 
 	}
 
 	public function testBucketExists(){
-		$this->assertTrue($this->s3->exists());
+
+		$closure = $this->s3->exists();
+		$this->assertTrue(is_callable($closure));
+
+		$result = $closure(null, array());
+
+		$this->assertTrue($result);
+
 	}
 
 	public function testBucketNotExists(){
+
 		$this->configuration['bucket'] = 'li3awsnobucket';
 		$this->s3 = new S3($this->configuration);
-		$this->assertFalse($this->s3->exists());
+
+		$closure = $this->s3->exists();
+		$this->assertTrue(is_callable($closure));
+		$result = $closure(null, array());
+		$this->assertFalse($result);
 		unset($this->s3);
+
 	}
 
 	public function testFileUpload(){

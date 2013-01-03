@@ -49,7 +49,7 @@ class S3 extends \lithium\core\Object {
 
 		$params = compact('bucket', 'region', 'options', 'data', 'filename');
 
-		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+		return function($self, $params) use ($params, &$s3) {
 
 			extract($params);
 
@@ -72,7 +72,8 @@ class S3 extends \lithium\core\Object {
 			}
 
 			return $s3->create_object($bucket, $filename, $params['options']);
-		});
+		
+		};
 	}
 
 	/**
@@ -87,7 +88,7 @@ class S3 extends \lithium\core\Object {
 
 		$params = compact('bucket', 'region', 'options', 'filename');
 
-		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+		return function($self, $params) use ($params, &$s3) {
 
 			extract($params);
 
@@ -104,7 +105,8 @@ class S3 extends \lithium\core\Object {
 			}
 
 			return $s3->get_object($bucket, $filename, $params['options']);
-		});
+		
+		};
 
 	}
 
@@ -122,7 +124,7 @@ class S3 extends \lithium\core\Object {
 
 		$params = compact('bucket', 'region', 'options', 'filename');
 
-		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+		return function($self, $params) use ($params, &$s3) {
 
 			extract($params);
 
@@ -132,7 +134,7 @@ class S3 extends \lithium\core\Object {
 				return $s3->if_object_exists($bucket, $filename);
 			}
 
-		});
+		};
 
 	}
 
@@ -149,11 +151,11 @@ class S3 extends \lithium\core\Object {
 
 		$params = compact('bucket', 'region', 'options', 'filename');
 
-		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+		return function($self, $params) use ($params, &$s3) {
 			extract($params);
 			$filename = $params['filename'];
 			return $s3->delete_object($bucket, $filename, $options);
-		});
+		};
 	}
 
 	/**
@@ -177,8 +179,8 @@ class S3 extends \lithium\core\Object {
 		$dest = array('bucket' => $options['destBucket'], 'filename' => $destFilename);
 
 		$params = compact('bucket', 'region', 'options', 'source', 'dest');
-
-		return $this->_filter(__METHOD__, $params, function($self, $params) use (&$s3) {
+		
+		return function($self, $params) use ($params, &$s3) {
 
 			$defaults = array('acl' => \AmazonS3::ACL_PUBLIC);
 			$params['options'] += $defaults;
@@ -187,6 +189,6 @@ class S3 extends \lithium\core\Object {
 
 			return $s3->copy_object($source, $dest, $options);
 
-		});
+		};
 	}
 }
