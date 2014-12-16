@@ -17,7 +17,7 @@ class S3Test extends \lithium\test\Unit {
         unset($this->s3);
     }
 
-    public function testSimpleWrite() {
+    public function testSimpleWriteAndDelete() {
         $filename = 'test_file';
         $data = 'test data';
 
@@ -26,9 +26,17 @@ class S3Test extends \lithium\test\Unit {
 
         $params = compact('filename', 'data');
         $result = $closure($this->s3, $params, null);
-        $this->assertTrue($result);
+        $this->assertEqual(200, $result->status);
 
-        $result = file_get_contents('http://s3.amazonaws.com/'.$this->configuration['bucket'].'/'.$filename);
+        $url = 'http://' . $this->configuration['bucket'] . '.s3.amazonaws.com/'.$filename;
+        $result = file_get_contents($url);
         $this->assertEqual($data, $result);
+
+        // test simple delete
+        $closureDelete = $this->s3->delete($filename);
+        $closureDelete($this->s3, ['filename' => $filename]);
+        // should now 403 as the file should be gone
+        $headers = @get_headers($url);
+        $this->assertEqual('HTTP/1.1 403 Forbidden', $headers[0]);
     }
 }
