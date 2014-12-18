@@ -66,6 +66,16 @@ class S3 extends \lithium\core\Object {
     }
 
     public function delete($filename, array $options = array()) {
+        $s3 = new \AmazonS3($this->_config);;
+        $bucket = $this->_config['bucket'];
+        $region = $this->_config['region'];
 
+        return function($self, $params) use ($s3, $bucket, $region) {
+            $filename = $params['filename'];
+
+            return $s3->delete_object($bucket, $filename, array(
+                'acl' => \AmazonS3::ACL_PUBLIC
+            ));
+        };
     }
 }
